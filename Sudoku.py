@@ -1,5 +1,4 @@
 import time 
-
 class Cell:
     def __init__(self, row_number, column_number, value):
         self.row = row_number
@@ -178,6 +177,5 @@ def main():
     validator=Validator(backtrack.cells)
     validator.print()
     print("Run time: %s seconds" % (time.time() - start_time))
-
 if __name__ == "__main__":
     main()

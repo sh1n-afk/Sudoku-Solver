@@ -1,4 +1,3 @@
-//sudoku test case 
 const board = [ 
   new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 0]),
   new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 2]),
@@ -11,28 +10,28 @@ const board = [
   new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 1])
 ]
 
+console.time("timer");
 process.nextTick(() => {
-  const sudoku = new Sudoku({ squareRegion: 3 })      
-//schedule invoked the callback function 
+  const sudoku = new Sudoku({ squareRegion: 3 })
   sudoku.play(board)
   console.log(sudoku.printable())
 })
 
 function Sudoku (opts = {}) {
-  this.region = opts.squareRegion || 3 //default classic
+  this.region = opts.squareRegion || 3 
 }
 
 Sudoku.prototype.play = function (board) {
-  const allCells = buildCellStructure(board, this.region) //filter fuction
+  const allCells = buildCellStructure(board, this.region)
   this.valueSet = Array(board[0].length).fill(0).map((_, i) => (i + 1))
-  const cells = allCells.filter(c => c.init === 0) //to reduce the calculations ignoring the default cells 
-  let iter = 0    //out tries are invalid
+  const cells = allCells.filter(c => c.init === 0)
+  let iter = 0
   for (let i = 0; i < cells.length; i++) {
     const cell = cells[i]
-    iter++    //incrementing iteration 
-    if (!solveCell.call(this, cell)) { //checking if board empty 
-      cell.history.clear()        
-      let backTrack = i - 1 //helper function : backtracking
+    iter++
+    if (!solveCell.call(this, cell)) {
+      cell.history.clear() 
+      let backTrack = i - 1
       for (; backTrack >= 0; backTrack--) {
         if (assignValue.call(this, cells[backTrack], 0)) {
         break
@@ -41,15 +40,15 @@ Sudoku.prototype.play = function (board) {
       i = backTrack - 1
     }
   }
-  this.lastGame = board //takes board and shifts to store 
-  this.lastResult = allCells.map(_ => _.value)      
+  this.lastGame = board
+  this.lastResult = allCells.map(_ => _.value)
   console.log(iter)
   return this.lastResult
 }
 
 function solveCell (cell) {
   const chooseNewValue = chooseValue.call(this, cell)
-  if (chooseNewValue === 0) {   //checking if try path is false 
+  if (chooseNewValue === 0) {
     return false
   }
   assignValue.call(this, cell, chooseNewValue)
@@ -67,13 +66,13 @@ function assignValue (cell, value) {
 Sudoku.prototype.printable = function (result) {
   const print = result || this.lastResult
   if (!print) {
-     return //nothing to print 
+     return
   }
+
   return print.flatMap((val, i) => {
     if ((i + 1) % this.region === 0) {
       if ((i + 1) % (this.region ** 2) === 0) {
-        if ((i + 1) % (this.region ** 3) === 0) { 
-        //printable board pattern
+        if ((i + 1) % (this.region ** 3) === 0) {
           return [val, '|', '\n', '-'.repeat(this.region ** 2), '--|\n']
         } else {
           return [val, '|', '\n']
@@ -94,12 +93,10 @@ function chooseValue (cell) {
   return values[Math.floor(Math.random() * values.length)]
 }
 
-//structure always pointing to the same array
 function buildCellStructure (board, squareLength) {
   const cells = []
   const columnMap = new Map()
-  const squareMap = new Map()  
-//building square cell for board
+  const squareMap = new Map()
   board.forEach((row, y) => {
     row.forEach((cellValue, x) => {
       if (!columnMap.has(x)) {
@@ -107,7 +104,6 @@ function buildCellStructure (board, squareLength) {
       }
       columnMap.get(x).push(cellValue)
       const squareId = `${Math.floor(x / squareLength)}-${Math.floor(y / squareLength)}`
-      //ceiling function to get max integer smaller than previous
       if (!squareMap.has(squareId)) {
         squareMap.set(squareId, [])
       }
@@ -119,3 +115,4 @@ function buildCellStructure (board, squareLength) {
   })
   return cells
 }
+console.timeEnd("timer");
